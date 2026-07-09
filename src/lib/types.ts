@@ -53,6 +53,8 @@ export interface DirectionsInfo {
 export interface UiSessionState {
   action: UiActionType;
   doctors?: DoctorCard[];
+  /** Doctor the patient is currently discussing or booking with */
+  selectedDoctorId?: string;
   clinics?: ClinicCard[];
   slots?: TimeSlot[];
   booking?: BookingConfirmation;

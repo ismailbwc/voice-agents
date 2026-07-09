@@ -26,7 +26,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    setUiState(callId, { action: "SHOW_DOCTOR_CARDS", doctors });
+    setUiState(callId, {
+      action: "SHOW_DOCTOR_CARDS",
+      doctors,
+      selectedDoctorId: doctors.length === 1 ? doctors[0].id : undefined,
+    });
 
     const message =
       doctors.length > 0

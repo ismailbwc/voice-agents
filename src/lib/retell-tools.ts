@@ -8,7 +8,7 @@ import {
   searchClinics,
   searchDoctors,
 } from "./csv-loader";
-import type { ClinicCard, DoctorCard, DoctorRow, DirectionsInfo, TimeSlot } from "./types";
+import type { ClinicCard, DoctorCard, DoctorRow, DirectionsInfo, TimeSlot, UiSessionState } from "./types";
 
 const DEBUG_RETELL_TOOLS = process.env.NODE_ENV !== "production";
 
@@ -120,6 +120,26 @@ export function resolveDoctorsFromArgs(entity: EntitySlug, args: Record<string, 
 
 export function buildDoctorCards(entity: EntitySlug, args: Record<string, unknown>): DoctorCard[] {
   return resolveDoctorsFromArgs(entity, args).map((d) => toDoctorCard(entity, d));
+}
+
+export function resolveDoctorCardById(
+  entity: EntitySlug,
+  doctorId: string | undefined
+): DoctorCard | undefined {
+  if (!doctorId) return undefined;
+  const doc = loadDoctors(entity).find((d) => d.id === doctorId);
+  return doc ? toDoctorCard(entity, doc) : undefined;
+}
+
+/** Keep the doctor card in sync when slots/booking reference a specific doctor. */
+export function syncDoctorFromArgs(
+  entity: EntitySlug,
+  args: Record<string, unknown>
+): Pick<UiSessionState, "doctors" | "selectedDoctorId"> {
+  const doctorId = typeof args.doctor_id === "string" ? args.doctor_id : undefined;
+  const card = resolveDoctorCardById(entity, doctorId);
+  if (!card) return {};
+  return { selectedDoctorId: card.id, doctors: [card] };
 }
 
 export function buildClinicCards(entity: EntitySlug, args: Record<string, unknown>): ClinicCard[] {

@@ -47,8 +47,17 @@ export function AgenticPanel({ uiState, theme }: AgenticPanelProps) {
             Doctors Found
           </h3>
           <div className="grid gap-3">
-            {uiState.doctors.map((doc) => (
-              <div key={doc.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
+            {uiState.doctors.map((doc) => {
+              const isSelected = uiState.selectedDoctorId === doc.id;
+              return (
+              <div
+                key={doc.id}
+                className="rounded-xl border bg-white/5 p-3"
+                style={{
+                  borderColor: isSelected ? theme.accent : "rgba(255,255,255,0.1)",
+                  boxShadow: isSelected ? `0 0 0 1px ${theme.accent}55` : undefined,
+                }}
+              >
                 <p className="font-medium text-white">{doc.name}</p>
                 <p className="text-xs text-white/60">{doc.title} · {doc.specialty}</p>
                 <p className="mt-1 text-xs text-white/50">{doc.clinicName}</p>
@@ -64,7 +73,8 @@ export function AgenticPanel({ uiState, theme }: AgenticPanelProps) {
                   ))}
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </>
       )}

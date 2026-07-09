@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildSlots, type RetellToolPayload } from "@/lib/retell-tools";
+import { buildSlots, getEntityFromPayload, syncDoctorFromArgs, type RetellToolPayload } from "@/lib/retell-tools";
 import { setUiState } from "@/lib/ui-session-store";
 
 export async function POST(request: NextRequest) {
   try {
     const payload = (await request.json()) as RetellToolPayload;
+    const entity = getEntityFromPayload(payload);
     const callId = payload.call.call_id;
     const slots = buildSlots(payload.args);
     const available = slots.filter((s) => s.available);
 
-    setUiState(callId, { action: "SHOW_TIME_SLOTS", slots });
+    setUiState(callId, { action: "SHOW_TIME_SLOTS", slots, ...syncDoctorFromArgs(entity, payload.args) });
 
     return NextResponse.json({
       success: true,

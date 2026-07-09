@@ -45,12 +45,13 @@ export function useUiSession(callId: string | null, active: boolean) {
               doctorCount: data.doctors?.length ?? 0,
             });
           }
-          setUiState((prev) => ({
-            ...prev,
-            ...data,
-            doctors: data.doctors ?? prev?.doctors,
-            slots: data.slots ?? prev?.slots,
-          }));
+          setUiState((prev) => {
+            const next = { ...prev, ...data };
+            if (data.action === "SHOW_DOCTOR_CARDS") {
+              next.doctors = data.doctors ?? [];
+            }
+            return next;
+          });
         } else if (DEBUG_UI_SESSION) {
           console.log("[useUiSession] skipped stale update", {
             callId,
