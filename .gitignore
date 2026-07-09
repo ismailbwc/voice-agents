@@ -1,0 +1,17 @@
+node_modules/
+.next/
+.env.local
+.env
+*.log
+.DS_Store
+
+# Personal research notes (not needed in repo)
+docs/source/
+
+# Generated KB markdown (regenerate with npm run sync-kb)
+docs/dhcc/doctors-directory.md
+docs/dhcc/clinics-directory.md
+docs/dhcc/specialties-index.md
+docs/c37/doctors-directory.md
+docs/c37/facilities-directory.md
+docs/c37/specialties-index.md

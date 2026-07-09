@@ -1,0 +1,3 @@
+id,name,building,address,phone,email,amenities,opening_hours,latitude,longitude,insurance_accepted,website
+c37-oud-metha,C37 Oud Metha,Phase 1 Oud Metha,"Oud Metha Road, Bur Dubai, Dubai Healthcare City, Dubai, UAE",+97143838333,info@c37.ae,"Private offices,Exam rooms,Consulting rooms,Waiting area,Nursing staff,Reception",Mon-Fri 08:00-18:00 Sat by appointment,25.2235,55.3150,"Daman,AXA,Bupa,Cigna via partner network",c37.ae
+c37-al-jaddaf,C37 Al Jaddaf,Phase 2 Al Jaddaf,"Al Jaddaf, Dubai Healthcare City, Dubai, UAE",+97143838333,info@c37.ae,"Private offices,Exam rooms,Consulting rooms,Waiting area,Nursing staff,Reception",Mon-Fri 08:00-18:00 Sat by appointment,25.2185,55.3345,"Daman,AXA,Bupa,Cigna via partner network",c37.ae

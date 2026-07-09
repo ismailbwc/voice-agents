@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" fill="#3d2a0a"/>
+  <circle cx="200" cy="160" r="70" fill="#d97706" opacity="0.3"/>
+  <ellipse cx="200" cy="320" rx="100" ry="60" fill="#b45309" opacity="0.2"/>
+  <circle cx="200" cy="150" r="55" fill="#fde68a"/>
+  <ellipse cx="200" cy="280" rx="70" ry="90" fill="#fbbf24"/>
+  <rect x="130" y="240" width="140" height="100" rx="20" fill="#d97706"/>
+  <text x="200" y="380" text-anchor="middle" fill="#fcd34d" font-family="system-ui" font-size="14">C37 Receptionist</text>
+</svg>

@@ -1,0 +1,15 @@
+id,name,title,specialty,clinic_id,languages,nationality,experience_years,availability_days,consultation_fee_aed,rating,qualifications,profile_url
+c37-doc-001,Dr. Pierre Majdalani,Specialist Pediatrician,Pediatrics and Pediatric Pulmonology,c37-oud-metha,"English,Arabic,French",Lebanese,25,"Mon,Tue,Wed,Thu,Fri",400,4.9,"MD Paris,Board Certified Pediatrics",c37.ae/doctors#pierre
+c37-doc-002,Dr. Rasha Elkattawy,General Practitioner,Family Medicine and Anti-Aging,c37-oud-metha,"English,Arabic",Egyptian,10,"Mon,Tue,Wed,Thu",350,4.7,"MBBS,MSc Ireland,Aesthetics Diploma",c37.ae/doctors#rasha
+c37-doc-003,Dr. Yaser Naji,Consultant Interventional Radiologist,Interventional Radiology,c37-oud-metha,"Arabic,English",Egyptian,24,"Mon,Tue,Wed,Thu,Fri",480,4.8,"MBBCh,FRCR (UK)",c37.ae/doctors#yaser
+c37-doc-004,Dr. Suhad Al Shawabkeh,Clinical Dietitian,Dietetics and Nutrition,c37-oud-metha,"Arabic,English",Emirati,15,"Mon,Tue,Wed,Thu,Fri",250,4.6,"BSc Dietetics Jordan",c37.ae/doctors#suhad
+c37-doc-005,Dr. Candice Watson,Aesthetic Therapist,Beauty Therapy and Micropigmentation,c37-oud-metha,English,British,35,"Mon,Tue,Wed,Thu",300,4.8,"Certified Aesthetic Therapist",c37.ae/doctors#candice
+c37-doc-006,Dr. Pearl D'Costa,Audiologist,Audiology and Vestibular Rehabilitation,c37-oud-metha,English,Indian,18,"Mon,Tue,Wed,Thu,Fri",320,4.7,"Doctorate in Audiology USA",c37.ae/doctors#pearl
+c37-doc-007,Dr. Oliver Schumacher,Consultant Plastic Surgeon,Plastic and Cosmetic Surgery,c37-al-jaddaf,"English,German",German,20,"Mon,Tue,Wed,Thu",550,4.9,"German Board Certified Plastic Surgery",c37.ae/doctors#oliver
+c37-doc-008,Dr. Babar Bashir,Internal Medicine Specialist,Internal Medicine,c37-oud-metha,"English,Urdu,Arabic",Pakistani,25,"Mon,Tue,Wed,Thu,Fri",380,4.7,"MD DUHS Pakistan,Fellow CPPS",c37.ae/doctors#babar
+c37-doc-009,Dr. Marjorie Lantum,Internal Medicine Consultant,Integrative and Functional Medicine,c37-oud-metha,English,American,23,"Mon,Tue,Wed,Thu",420,4.8,"MD,ABIM Certified",c37.ae/doctors#marjorie
+c37-doc-010,Dr. Walid Ashkar,Specialist Plastic Surgeon,Plastic Surgery and Aesthetics,c37-al-jaddaf,"Arabic,English,German",Syrian,12,"Mon,Tue,Wed,Thu,Fri",500,4.7,"MD,PhD Plastic Surgery",c37.ae/doctors#walid
+c37-doc-011,Dr. Suha Alshuaibat,Speech Therapist,Speech and Language Therapy,c37-oud-metha,"Arabic,English",Jordanian,17,"Mon,Tue,Wed,Thu",280,4.6,"MSc Speech Therapy",c37.ae/doctors#suha
+c37-doc-012,Dr. Nadia Rahman,Specialist Dermatologist,Dermatology and Aesthetics,c37-oud-metha,"English,Arabic",Lebanese,8,"Mon,Tue,Wed,Thu,Fri",360,4.5,"MD Dermatology",c37.ae/doctors#nadia
+c37-doc-013,Dr. Hassan Al Farsi,Consultant ENT,ENT and Rhinology,c37-al-jaddaf,"Arabic,English",Emirati,14,"Sun,Mon,Tue,Wed,Thu",390,4.7,"MD,FRCS ENT",c37.ae/doctors#hassan
+c37-doc-014,Dr. Isabelle Moreau,Consultant Rheumatologist,Rheumatology,c37-oud-metha,"English,French,Arabic",French,16,"Mon,Tue,Wed,Thu",410,4.8,"MD,Rheumatology Board",c37.ae/doctors#isabelle
