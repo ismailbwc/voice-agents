@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { EntityConfig } from "@/lib/entities";
 import { useRetellCall } from "@/hooks/useRetellCall";
 import { useUiSession } from "@/hooks/useUiSession";
@@ -12,6 +12,8 @@ import { ReceptionistAvatar } from "./ReceptionistAvatar";
 interface VoiceReceptionistProps {
   entity: EntityConfig;
 }
+
+const DEBUG_RECEPTIONIST = process.env.NODE_ENV !== "production";
 
 export function VoiceReceptionist({ entity }: VoiceReceptionistProps) {
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +37,19 @@ export function VoiceReceptionist({ entity }: VoiceReceptionistProps) {
   const transcriptUi = useConversationUi(messages, entity.slug, callStatus === "active", agentTurn);
   const uiState =
     toolUi && toolUi.action !== "CLEAR" ? toolUi : transcriptUi;
+
+  useEffect(() => {
+    if (!DEBUG_RECEPTIONIST) return;
+    console.log("[VoiceReceptionist] ui source", {
+      entity: entity.slug,
+      callId,
+      toolAction: toolUi?.action ?? null,
+      transcriptAction: transcriptUi?.action ?? null,
+      chosenSource: toolUi && toolUi.action !== "CLEAR" ? "toolUi" : "transcriptUi",
+      chosenAction: uiState?.action ?? null,
+      chosenDoctorCount: uiState?.doctors?.length ?? 0,
+    });
+  }, [entity.slug, callId, toolUi, transcriptUi, uiState]);
 
   return (
     <div

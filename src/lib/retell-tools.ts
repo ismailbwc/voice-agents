@@ -10,6 +10,13 @@ import {
 } from "./csv-loader";
 import type { ClinicCard, DoctorCard, DoctorRow, DirectionsInfo, TimeSlot } from "./types";
 
+const DEBUG_RETELL_TOOLS = process.env.NODE_ENV !== "production";
+
+function debugLog(label: string, payload: unknown) {
+  if (!DEBUG_RETELL_TOOLS) return;
+  console.log(`[retell-tools] ${label}`, payload);
+}
+
 export interface RetellToolPayload {
   name: string;
   call: { call_id: string; metadata?: { entity?: EntitySlug } };
@@ -51,14 +58,29 @@ function asStringArray(value: unknown): string[] {
 export function resolveDoctorsFromArgs(entity: EntitySlug, args: Record<string, unknown>): DoctorRow[] {
   const all = loadDoctors(entity);
   const ids = asStringArray(args.doctor_ids);
+  const names = asStringArray(args.doctor_names);
+  const specialty = typeof args.specialty === "string" ? args.specialty : undefined;
+
+  debugLog("resolveDoctorsFromArgs:start", {
+    entity,
+    ids,
+    names,
+    specialty,
+    totalDoctorsAvailable: all.length,
+  });
+
   if (ids.length > 0) {
     const byId = ids
       .map((id) => all.find((d) => d.id === id))
       .filter((d): d is DoctorRow => !!d);
+    debugLog("resolveDoctorsFromArgs:byId", {
+      requestedIds: ids,
+      matchedIds: byId.map((d) => d.id),
+      matchedNames: byId.map((d) => d.name),
+    });
     if (byId.length > 0) return byId;
   }
 
-  const names = asStringArray(args.doctor_names);
   if (names.length > 0) {
     const byName: DoctorRow[] = [];
     for (const name of names) {
@@ -69,12 +91,30 @@ export function resolveDoctorsFromArgs(entity: EntitySlug, args: Record<string, 
         all.find((d) => lower.includes(d.name.replace(/^Dr\.?\s*/i, "").toLowerCase()));
       if (match && !byName.some((d) => d.id === match.id)) byName.push(match);
     }
+    debugLog("resolveDoctorsFromArgs:byName", {
+      requestedNames: names,
+      matchedIds: byName.map((d) => d.id),
+      matchedNames: byName.map((d) => d.name),
+    });
     if (byName.length > 0) return byName;
   }
 
-  const specialty = typeof args.specialty === "string" ? args.specialty : undefined;
-  if (specialty) return searchDoctors(entity, { specialty }).slice(0, 4);
+  if (specialty) {
+    const bySpecialty = searchDoctors(entity, { specialty }).slice(0, 4);
+    debugLog("resolveDoctorsFromArgs:bySpecialty", {
+      specialty,
+      matchedIds: bySpecialty.map((d) => d.id),
+      matchedNames: bySpecialty.map((d) => d.name),
+    });
+    return bySpecialty;
+  }
 
+  debugLog("resolveDoctorsFromArgs:noMatch", {
+    entity,
+    ids,
+    names,
+    specialty,
+  });
   return [];
 }
 
