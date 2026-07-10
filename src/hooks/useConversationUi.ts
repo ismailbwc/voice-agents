@@ -121,17 +121,22 @@ export function useConversationUi(
         if (!bookingRefRef.current) {
           bookingRefRef.current = buildBookingReference(entity);
         }
+        const selectedId = uiStateRef.current?.selectedDoctorId ?? uiStateRef.current?.doctors?.[0]?.id;
         const params = new URLSearchParams({ entity, type: "booking" });
+        if (selectedId) params.set("doctor_id", selectedId);
         const res = await fetch(`/api/mock-data?${params}`);
         const data = await res.json();
+        const prevDoc =
+          uiStateRef.current?.doctors?.find((d) => d.id === selectedId) ?? uiStateRef.current?.doctors?.[0];
         setUiState((prev) => ({
           action,
           doctors: prev?.doctors,
+          selectedDoctorId: selectedId ?? prev?.selectedDoctorId,
           slots: prev?.slots,
           booking: {
             reference: bookingRefRef.current!,
-            doctorName: data.doctorName ?? prev?.doctors?.[0]?.name ?? "Your Doctor",
-            clinicName: data.clinicName ?? prev?.doctors?.[0]?.clinicName ?? "DHCC Facility",
+            doctorName: data.doctorName ?? prevDoc?.name ?? "Your Doctor",
+            clinicName: data.clinicName ?? prevDoc?.clinicName ?? "DHCC Facility",
             date: context.preferredDate ?? new Date().toISOString().split("T")[0],
             time: context.preferredTime ?? "10:00",
             patientName: context.patientName ?? "Guest",

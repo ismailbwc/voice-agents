@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import type { EntitySlug } from "@/lib/entities";
 import {
   generateMockSlots,
-  getClinicById,
   loadDoctors,
   searchClinics,
   searchDoctors,
 } from "@/lib/csv-loader";
 import { matchDoctorsFromAgentText } from "@/lib/doctor-matcher";
-import { getClinicImage, getDoctorImage, ensureDistinctDoctorImages } from "@/lib/media";
+import { getClinicImage, ensureDistinctDoctorImages } from "@/lib/media";
 import { toDoctorCard } from "@/lib/retell-tools";
 import type { ClinicCard, DoctorCard, DirectionsInfo, TimeSlot } from "@/lib/types";
 
@@ -58,13 +57,22 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "booking") {
-      const doctorId = searchParams.get("doctor_id");
-      const doctors = loadDoctors(entity);
-      const doctor = doctors.find((d) => d.id === doctorId) ?? doctors[0];
-      const clinic = doctor ? getClinicById(entity, doctor.clinic_id) : undefined;
+      const doctorId = searchParams.get("doctor_id") ?? undefined;
+      const card = toDoctorCard(
+        entity,
+        (() => {
+          const local = loadDoctors(entity).find((d) => d.id === doctorId);
+          if (local) return local;
+          if (doctorId?.startsWith("dhcc-")) {
+            const dhcc = loadDoctors("dhcc").find((d) => d.id === doctorId);
+            if (dhcc) return dhcc;
+          }
+          return loadDoctors(entity)[0];
+        })()
+      );
       return NextResponse.json({
-        doctorName: doctor?.name ?? "Selected Doctor",
-        clinicName: clinic?.name ?? "DHCC Facility",
+        doctorName: card?.name ?? "Selected Doctor",
+        clinicName: card?.clinicName ?? "DHCC Facility",
       });
     }
 

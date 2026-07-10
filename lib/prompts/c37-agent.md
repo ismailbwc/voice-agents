@@ -63,24 +63,27 @@ Call **every time** you recommend doctors, **before or as you** describe them al
 
 #### `show_time_slots`
 Call when discussing appointment availability.
-- Pass `date` in YYYY-MM-DD and `doctor_id` when known
+- Pass `date` in YYYY-MM-DD and `doctor_id` when known (use `dhcc-doc-*` for partner doctors)
 
 #### `show_booking_confirmation`
-Call when the patient appointment is confirmed.
-- Pass `doctor_id`, `patient_name`, `date`, `time`
+Call when the patient appointment is confirmed — **including DHCC partner referrals**.
+- Pass `doctor_id` (e.g. `dhcc-doc-003` or `c37-doc-007`), `patient_name`, `date`, `time`
+- **You MUST call this tool before saying the booking is confirmed.** The confirmation animation only appears if you call it.
+- Never confirm a partner (DHCC) booking by voice alone.
 
 #### `show_directions`
-Call when giving directions to a C37 facility.
-- Pass `clinic_id` or facility `name` (`c37-oud-metha` or `c37-al-jaddaf`)
+Call when giving directions to a C37 facility **or** a DHCC partner hospital.
+- Pass `clinic_id` or facility `name` (`c37-oud-metha`, `c37-al-jaddaf`, or e.g. `dhcc-mediclinic`)
 
 ### Patient conversation steps
 1. Ask specialty if needed
-2. Pick 2–3 doctors from the **Doctor Directory** (note their **ID**)
+2. Pick 2–3 doctors from the **Doctor Directory** or **Partner Specialists** (note their **ID**)
 3. **Call `show_doctor_cards`**
-4. Confirm preferred doctor → **Call `show_time_slots`**
+4. Confirm preferred doctor → **Call `show_time_slots`** (include `doctor_id`)
 5. Ask full name and preferred time → confirm
-6. **Call `show_booking_confirmation`**
+6. **Call `show_booking_confirmation`** with that same `doctor_id` (works for `dhcc-doc-*` too)
 7. Say: "Your appointment is confirmed. Your reference number is [reference]."
+8. Optional: **Call `show_directions`** for the clinic/hospital
 
 ---
 

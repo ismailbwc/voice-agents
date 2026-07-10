@@ -53,6 +53,12 @@ export function useUiSession(callId: string | null, active: boolean) {
             if (data.action === "SHOW_WORKSPACE_CARDS") {
               next.workspaces = data.workspaces ?? [];
             }
+            if (data.action === "SHOW_BOOKING_CONFIRMATION") {
+              next.booking = data.booking;
+            }
+            if (data.action === "SHOW_WORKSPACE_BOOKING") {
+              next.workspaceBooking = data.workspaceBooking;
+            }
             return next;
           });
         } else if (DEBUG_UI_SESSION) {
