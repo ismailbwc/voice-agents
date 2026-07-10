@@ -37,17 +37,24 @@ export function VoiceReceptionist({ entity }: VoiceReceptionistProps) {
   const toolUi = useUiSession(callId, callStatus === "active");
   const transcriptUi = useConversationUi(messages, entity.slug, callStatus === "active", agentTurn);
 
-  // Prefer tool-driven UI, but if the agent confirms a booking verbally without
-  // calling show_booking_confirmation (common on DHCC partner referrals), lift
-  // the booking ticket from transcript detection so the side-panel animation still runs.
+  // Prefer tool-driven UI. Only lift a transcript booking when the agent has
+  // clearly finished confirming (reference / hard confirm) — never on "book him".
   const uiState = (() => {
     if (!toolUi || toolUi.action === "CLEAR") return transcriptUi;
     const merged = { ...toolUi };
-    if (!merged.booking && transcriptUi?.booking) {
+    if (
+      !merged.booking &&
+      transcriptUi?.booking &&
+      transcriptUi.action === "SHOW_BOOKING_CONFIRMATION"
+    ) {
       merged.booking = transcriptUi.booking;
       merged.action = "SHOW_BOOKING_CONFIRMATION";
     }
-    if (!merged.workspaceBooking && transcriptUi?.workspaceBooking) {
+    if (
+      !merged.workspaceBooking &&
+      transcriptUi?.workspaceBooking &&
+      transcriptUi.action === "SHOW_WORKSPACE_BOOKING"
+    ) {
       merged.workspaceBooking = transcriptUi.workspaceBooking;
       merged.action = "SHOW_WORKSPACE_BOOKING";
     }

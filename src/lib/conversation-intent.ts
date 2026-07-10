@@ -262,19 +262,24 @@ function agentOffersTimeSlots(text: string): boolean {
 }
 
 function agentConfirmsBooking(text: string): boolean {
-  return includesAny(text.toLowerCase(), [
+  const t = text.toLowerCase();
+  // Only treat as confirmed when the agent clearly finishes the booking —
+  // never on soft phrases like "I can book you" or "booked for Monday".
+  const hasReference =
+    includesAny(t, ["your reference", "reference number", "reference is", "booking reference"]);
+  const hardConfirm = includesAny(t, [
     "appointment is confirmed",
     "booking is confirmed",
     "has been booked",
     "appointment has been scheduled",
-    "your reference",
-    "reference number",
     "you're all set",
     "you are all set",
-    "confirmed for",
-    "see you on",
-    "booked for",
   ]);
+  return hasReference || hardConfirm;
+}
+
+function userProvidedSpecificTime(text: string): boolean {
+  return Boolean(extractTime(text));
 }
 
 function fingerprint(text: string): string {
@@ -343,8 +348,9 @@ export function analyzeConversation(
 
   const readyToBook = userAskedDoctors && (prev.doctorsShown || agentMentionedDoctors);
 
-  // Booking confirmation — "book it" after slots, or agent confirms
-  if (!prev.bookingShown && prev.slotsShown && userWantsToBook(lastUserLower)) {
+  // Booking confirmation — ONLY when the agent finishes the booking (reference / hard confirm).
+  // Never trigger on the user saying "book him" — that is still mid-flow.
+  if (!prev.bookingShown && newAgentUtterance && agentConfirmsBooking(lastAgentLower)) {
     return {
       context: {
         ...context,
@@ -359,29 +365,18 @@ export function analyzeConversation(
     };
   }
 
-  if (!prev.bookingShown && prev.slotsShown && newAgentUtterance && agentConfirmsBooking(lastAgentLower)) {
-    return {
-      context: {
-        ...context,
-        phase: "booking_confirmed",
-        lastAction: "SHOW_BOOKING_CONFIRMATION",
-        bookingShown: true,
-      },
-      intent: {
-        action: "SHOW_BOOKING_CONFIRMATION",
-        context: { ...context, phase: "booking_confirmed", bookingShown: true, lastAction: "SHOW_BOOKING_CONFIRMATION" },
-      },
-    };
-  }
-
-  // Time slots — user says "book" OR asks availability + agent gives times
+  // Time slots — exploring availability, or "book him" without a specific time yet.
+  // If the user already said e.g. "Monday at 10 AM", skip the slot picker.
+  const userAlreadyPickedTime = userProvidedSpecificTime(lastUser);
   const showSlots =
     !prev.slotsShown &&
     readyToBook &&
+    !userAlreadyPickedTime &&
     (userWantsToBook(lastUserLower) ||
       (userAsksAvailability(lastUserLower) &&
         newAgentUtterance &&
-        agentOffersTimeSlots(lastAgentLower)));
+        agentOffersTimeSlots(lastAgentLower)) ||
+      userAsksAvailability(lastUserLower));
 
   if (showSlots) {
     return {
