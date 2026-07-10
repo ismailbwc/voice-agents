@@ -9,6 +9,10 @@ export interface EntityTheme {
   gradientTo: string;
   orbListening: string;
   orbSpeaking: string;
+  surface: string;
+  text: string;
+  textMuted: string;
+  chip: string;
 }
 
 export interface EntityConfig {
@@ -16,11 +20,22 @@ export interface EntityConfig {
   name: string;
   shortName: string;
   tagline: string;
+  agentName: string;
   agentIdEnvKey: string;
   receptionistImage: string;
   logoText: string;
+  locationLabel: string;
   theme: EntityTheme;
 }
+
+const LIGHT_BASE = {
+  gradientFrom: "#F5F7FA",
+  gradientTo: "#EEF2F7",
+  surface: "#FFFFFF",
+  text: "#0B1F3A",
+  textMuted: "#64748B",
+  chip: "#E8F0FE",
+};
 
 export const ENTITIES: Record<EntitySlug, EntityConfig> = {
   dhcc: {
@@ -28,18 +43,19 @@ export const ENTITIES: Record<EntitySlug, EntityConfig> = {
     name: "Dubai Healthcare City",
     shortName: "DHCC",
     tagline: "Your gateway to world-class healthcare in Dubai",
+    agentName: "Sara",
     agentIdEnvKey: "RETELL_AGENT_ID_DHCC",
-    receptionistImage: "/images/dhcc-receptionist.svg",
+    receptionistImage: "/images/receptionist.png",
     logoText: "DHCC",
+    locationLabel: "Dubai Healthcare City",
     theme: {
-      primary: "#0d9488",
-      primaryLight: "#14b8a6",
-      accent: "#06b6d4",
-      glow: "rgba(20, 184, 166, 0.45)",
-      gradientFrom: "#0a1628",
-      gradientTo: "#0d3d38",
-      orbListening: "#22d3ee",
-      orbSpeaking: "#2dd4bf",
+      ...LIGHT_BASE,
+      primary: "#0B1F3A",
+      primaryLight: "#2563EB",
+      accent: "#0D9488",
+      glow: "rgba(37, 99, 235, 0.2)",
+      orbListening: "#0D9488",
+      orbSpeaking: "#2563EB",
     },
   },
   c37: {
@@ -47,18 +63,19 @@ export const ENTITIES: Record<EntitySlug, EntityConfig> = {
     name: "C37 Medical Workspace",
     shortName: "C37",
     tagline: "Private medical co-working by Dubai Healthcare City",
+    agentName: "Maya",
     agentIdEnvKey: "RETELL_AGENT_ID_C37",
-    receptionistImage: "/images/c37-receptionist.svg",
+    receptionistImage: "/images/receptionist.png",
     logoText: "C37",
+    locationLabel: "C37 · DHCC Oud Metha & Al Jaddaf",
     theme: {
-      primary: "#b45309",
-      primaryLight: "#d97706",
-      accent: "#f59e0b",
-      glow: "rgba(217, 119, 6, 0.4)",
-      gradientFrom: "#1a1208",
-      gradientTo: "#3d2a0a",
-      orbListening: "#fbbf24",
-      orbSpeaking: "#f97316",
+      ...LIGHT_BASE,
+      primary: "#0B1F3A",
+      primaryLight: "#2563EB",
+      accent: "#0D9488",
+      glow: "rgba(13, 148, 136, 0.22)",
+      orbListening: "#0D9488",
+      orbSpeaking: "#2563EB",
     },
   },
 };

@@ -8,6 +8,7 @@ import {
   searchDoctors,
 } from "@/lib/csv-loader";
 import { matchDoctorsFromAgentText } from "@/lib/doctor-matcher";
+import { getClinicImage, getDoctorImage } from "@/lib/media";
 import type { ClinicCard, DoctorCard, DirectionsInfo, TimeSlot } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
@@ -36,6 +37,7 @@ export async function GET(request: NextRequest) {
           languages: doc.languages.split(",").map((l) => l.trim()),
           rating: parseFloat(doc.rating) || 4.5,
           fee: parseInt(doc.consultation_fee_aed, 10) || 0,
+          imageUrl: getDoctorImage(doc),
         };
       });
       return NextResponse.json({ doctors });
@@ -54,6 +56,7 @@ export async function GET(request: NextRequest) {
         hours: c.opening_hours,
         latitude: parseFloat(c.latitude),
         longitude: parseFloat(c.longitude),
+        imageUrl: getClinicImage(c.id),
       }));
       return NextResponse.json({ clinics });
     }
@@ -87,6 +90,7 @@ export async function GET(request: NextRequest) {
         address: clinic.address,
         phone: clinic.phone,
         mapUrl: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+        imageUrl: getClinicImage(clinic.id),
       };
       return NextResponse.json({ directions });
     }

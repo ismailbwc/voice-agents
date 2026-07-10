@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0f1a;
-  --foreground: #f0f4f8;
+  --background: #f5f7fa;
+  --foreground: #0b1f3a;
 }
 
 body {
@@ -21,10 +21,22 @@ body {
   50% { transform: scale(1.02); }
 }
 
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+
 .animate-pulse-ring {
   animation: pulse-ring 2.5s ease-in-out infinite;
 }
 
 .animate-breathe {
   animation: breathe 4s ease-in-out infinite;
+}
+
+.card-elevated {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
 }

@@ -23,6 +23,7 @@ export interface DoctorCard {
   languages: string[];
   rating: number;
   fee: number;
+  imageUrl: string;
 }
 
 export interface ClinicCard {
@@ -34,6 +35,7 @@ export interface ClinicCard {
   hours: string;
   latitude: number;
   longitude: number;
+  imageUrl: string;
 }
 
 export interface TimeSlot {
@@ -55,6 +57,7 @@ export interface DirectionsInfo {
   address: string;
   mapUrl: string;
   phone: string;
+  imageUrl?: string;
 }
 
 export interface WorkspaceCard {
@@ -70,6 +73,7 @@ export interface WorkspaceCard {
   rateMonthly: number;
   availabilityDays: string[];
   floor: string;
+  imageUrl: string;
 }
 
 export interface MembershipInfo {

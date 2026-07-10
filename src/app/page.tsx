@@ -3,10 +3,10 @@ import { ENTITIES } from "@/lib/entities";
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0f1a] px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#F5F7FA] px-4">
       <div className="max-w-lg text-center">
-        <h1 className="text-3xl font-bold text-white md:text-4xl">Voice Receptionists</h1>
-        <p className="mt-3 text-white/60">
+        <h1 className="text-3xl font-bold text-[#0B1F3A] md:text-4xl">Voice Receptionists</h1>
+        <p className="mt-3 text-[#64748B]">
           Choose your assistant to start a voice conversation
         </p>
       </div>
@@ -16,14 +16,16 @@ export default function HomePage() {
           <Link
             key={entity.slug}
             href={`/${entity.slug}`}
-            className="group rounded-2xl border border-white/10 p-6 transition hover:border-white/25 hover:bg-white/5"
-            style={{ borderLeftColor: entity.theme.primary, borderLeftWidth: 4 }}
+            className="card-elevated group p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
           >
-            <p className="text-xs uppercase tracking-wider text-white/50">{entity.shortName}</p>
-            <p className="mt-1 text-lg font-semibold text-white group-hover:text-white">
-              {entity.name}
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              {entity.shortName}
             </p>
-            <p className="mt-2 text-sm text-white/50">{entity.tagline}</p>
+            <p className="mt-1 text-lg font-semibold text-[#0B1F3A]">{entity.name}</p>
+            <p className="mt-2 text-sm text-[#64748B]">{entity.tagline}</p>
+            <p className="mt-4 text-sm font-medium" style={{ color: entity.theme.primaryLight }}>
+              Talk to {entity.agentName} →
+            </p>
           </Link>
         ))}
       </div>

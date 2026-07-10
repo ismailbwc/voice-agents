@@ -64,4 +64,6 @@ During a call, the app watches the conversation and shows doctor cards, clinic l
 
 ## Replacing Placeholder Images
 
-Replace `public/images/dhcc-receptionist.svg` and `public/images/c37-receptionist.svg` with your branded receptionist photos (PNG/WebP recommended, square aspect ratio).
+Receptionist avatar: `public/images/receptionist.png` (used for both DHCC and C37).
+Doctor photos: `public/doctors/` (Fatima Al Hashimi → `doctor_f2.jpg`).
+Clinic / workspace photos: `public/clinics/`.

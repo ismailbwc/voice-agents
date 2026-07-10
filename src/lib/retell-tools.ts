@@ -11,6 +11,7 @@ import {
   searchDoctors,
   searchWorkspaces,
 } from "./csv-loader";
+import { getClinicImage, getDoctorImage, getWorkspaceImage } from "./media";
 import type {
   BillingPeriod,
   ClinicCard,
@@ -55,6 +56,7 @@ export function toDoctorCard(entity: EntitySlug, doc: DoctorRow): DoctorCard {
     languages: doc.languages.split(",").map((l) => l.trim()),
     rating: parseFloat(doc.rating) || 4.5,
     fee: parseInt(doc.consultation_fee_aed, 10) || 0,
+    imageUrl: getDoctorImage(doc),
   };
 }
 
@@ -178,6 +180,7 @@ export function buildClinicCards(entity: EntitySlug, args: Record<string, unknow
     hours: c.opening_hours,
     latitude: parseFloat(c.latitude),
     longitude: parseFloat(c.longitude),
+    imageUrl: getClinicImage(c.id),
   }));
 }
 
@@ -228,6 +231,7 @@ export function buildDirections(entity: EntitySlug, args: Record<string, unknown
     address: clinic.address,
     phone: clinic.phone,
     mapUrl: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+    imageUrl: getClinicImage(clinic.id),
   };
 }
 
@@ -256,6 +260,7 @@ export function toWorkspaceCard(row: WorkspaceRow): WorkspaceCard {
     rateMonthly: parseInt(row.rate_monthly_aed, 10) || 0,
     availabilityDays: row.availability_days.split(",").map((d) => d.trim()).filter(Boolean),
     floor: row.floor,
+    imageUrl: getWorkspaceImage(row.id, row.facility_id),
   };
 }
 

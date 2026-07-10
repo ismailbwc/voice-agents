@@ -55,13 +55,16 @@ export function VoiceReceptionist({ entity }: VoiceReceptionistProps) {
     <div
       className="min-h-screen"
       style={{
-        background: `linear-gradient(160deg, ${entity.theme.gradientFrom} 0%, ${entity.theme.gradientTo} 50%, #0a0f1a 100%)`,
+        background: `linear-gradient(180deg, ${entity.theme.gradientFrom} 0%, ${entity.theme.gradientTo} 100%)`,
+        color: entity.theme.text,
       }}
     >
-      <header className="flex items-center justify-between px-6 py-4">
+      <header className="flex items-center justify-between px-6 py-5">
         <div>
-          <p className="text-xs uppercase tracking-widest text-white/50">{entity.shortName}</p>
-          <h1 className="text-lg font-semibold text-white md:text-xl">{entity.name}</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+            {entity.shortName}
+          </p>
+          <h1 className="text-lg font-semibold text-[#0B1F3A] md:text-xl">{entity.name}</h1>
         </div>
         <div
           className="rounded-full px-3 py-1 text-xs font-bold text-white"
@@ -71,10 +74,8 @@ export function VoiceReceptionist({ entity }: VoiceReceptionistProps) {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-6xl gap-6 px-4 pb-8 md:grid-cols-2 md:px-6 lg:gap-8">
-        <section className="flex flex-col items-center gap-6">
-          <p className="text-center text-sm text-white/60 md:text-base">{entity.tagline}</p>
-
+      <main className="mx-auto grid max-w-6xl gap-8 px-4 pb-10 md:grid-cols-2 md:items-start md:px-6 lg:gap-10">
+        <section className="flex flex-col items-center gap-5 pt-2">
           <ReceptionistAvatar
             entity={entity}
             callStatus={callStatus}
@@ -82,6 +83,19 @@ export function VoiceReceptionist({ entity }: VoiceReceptionistProps) {
             agentAmplitude={agentAmplitude}
             userAmplitude={userAmplitude}
           />
+
+          <div className="max-w-md text-center">
+            <h2 className="text-2xl font-bold text-[#0B1F3A] md:text-3xl">
+              I&apos;m {entity.agentName}, your assistant.
+            </h2>
+            <p className="mt-2 text-sm text-slate-500 md:text-base">
+              {callStatus === "active"
+                ? entity.slug === "c37"
+                  ? "I can help you find a specialist or book physician workspace."
+                  : "Ask me about doctors, clinics, or appointments in Dubai Healthcare City."
+                : `Tap below to start your conversation with ${entity.agentName}.`}
+            </p>
+          </div>
 
           <CallControls
             entity={entity}
@@ -92,11 +106,27 @@ export function VoiceReceptionist({ entity }: VoiceReceptionistProps) {
           />
         </section>
 
-        <section className="flex min-h-[420px] flex-col md:min-h-[520px]">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white/50">
-            Booking &amp; Assistance
-          </h2>
-          <AgenticPanel uiState={uiState} theme={entity.theme} />
+        <section className="flex min-h-[480px] flex-col md:min-h-[560px]">
+          <div className="card-elevated flex flex-1 flex-col overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <div className="flex items-center gap-2">
+                <span
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-sm"
+                  style={{ backgroundColor: entity.theme.chip, color: entity.theme.primaryLight }}
+                >
+                  ✦
+                </span>
+                <h2 className="text-base font-semibold text-[#0B1F3A]">Booking &amp; Assistance</h2>
+              </div>
+            </div>
+            <div className="flex flex-1 flex-col p-5">
+              <AgenticPanel uiState={uiState} theme={entity.theme} entitySlug={entity.slug} />
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-5 py-3 text-xs text-slate-400">
+              <span>Secure medical environment</span>
+              <span>{entity.locationLabel}</span>
+            </div>
+          </div>
         </section>
       </main>
     </div>
