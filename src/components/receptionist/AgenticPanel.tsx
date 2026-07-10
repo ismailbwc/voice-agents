@@ -172,7 +172,17 @@ export function AgenticPanel({ uiState, theme, entitySlug }: AgenticPanelProps) 
                     <Image src={doc.imageUrl} alt={doc.name} fill className="object-cover" sizes="64px" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-[#0B1F3A]">{doc.name}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-[#0B1F3A]">{doc.name}</p>
+                      {doc.id.startsWith("dhcc-") && entitySlug === "c37" && (
+                        <span
+                          className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          style={{ backgroundColor: theme.chip, color: theme.primaryLight }}
+                        >
+                          DHCC Partner
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-slate-500">{doc.title} · {doc.specialty}</p>
                     <p className="mt-0.5 text-xs text-slate-400">{doc.clinicName}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">

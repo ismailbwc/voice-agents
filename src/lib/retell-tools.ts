@@ -45,21 +45,6 @@ export function getEntityFromPayload(payload: RetellToolPayload, fallback: Entit
   return entity === "dhcc" || entity === "c37" ? entity : fallback;
 }
 
-export function toDoctorCard(entity: EntitySlug, doc: DoctorRow): DoctorCard {
-  const clinic = getClinicById(entity, doc.clinic_id);
-  return {
-    id: doc.id,
-    name: doc.name,
-    title: doc.title,
-    specialty: doc.specialty,
-    clinicName: clinic?.name ?? doc.clinic_id,
-    languages: doc.languages.split(",").map((l) => l.trim()),
-    rating: parseFloat(doc.rating) || 4.5,
-    fee: parseInt(doc.consultation_fee_aed, 10) || 0,
-    imageUrl: getDoctorImage(doc),
-  };
-}
-
 function asStringArray(value: unknown): string[] {
   if (!value) return [];
   if (Array.isArray(value)) return value.map(String).filter(Boolean);
@@ -72,30 +57,17 @@ function asStringArray(value: unknown): string[] {
   return [String(value)];
 }
 
-/** Resolve doctors from agent tool args — prefers exact IDs from the directory. */
-export function resolveDoctorsFromArgs(entity: EntitySlug, args: Record<string, unknown>): DoctorRow[] {
+/** Resolve doctors within a single entity directory. */
+function resolveDoctorsInEntity(entity: EntitySlug, args: Record<string, unknown>): DoctorRow[] {
   const all = loadDoctors(entity);
   const ids = asStringArray(args.doctor_ids);
   const names = asStringArray(args.doctor_names);
   const specialty = typeof args.specialty === "string" ? args.specialty : undefined;
 
-  debugLog("resolveDoctorsFromArgs:start", {
-    entity,
-    ids,
-    names,
-    specialty,
-    totalDoctorsAvailable: all.length,
-  });
-
   if (ids.length > 0) {
     const byId = ids
       .map((id) => all.find((d) => d.id === id))
       .filter((d): d is DoctorRow => !!d);
-    debugLog("resolveDoctorsFromArgs:byId", {
-      requestedIds: ids,
-      matchedIds: byId.map((d) => d.id),
-      matchedNames: byId.map((d) => d.name),
-    });
     if (byId.length > 0) return byId;
   }
 
@@ -109,31 +81,95 @@ export function resolveDoctorsFromArgs(entity: EntitySlug, args: Record<string, 
         all.find((d) => lower.includes(d.name.replace(/^Dr\.?\s*/i, "").toLowerCase()));
       if (match && !byName.some((d) => d.id === match.id)) byName.push(match);
     }
-    debugLog("resolveDoctorsFromArgs:byName", {
-      requestedNames: names,
-      matchedIds: byName.map((d) => d.id),
-      matchedNames: byName.map((d) => d.name),
-    });
     if (byName.length > 0) return byName;
   }
 
   if (specialty) {
-    const bySpecialty = searchDoctors(entity, { specialty }).slice(0, 4);
-    debugLog("resolveDoctorsFromArgs:bySpecialty", {
-      specialty,
-      matchedIds: bySpecialty.map((d) => d.id),
-      matchedNames: bySpecialty.map((d) => d.name),
-    });
-    return bySpecialty;
+    return searchDoctors(entity, { specialty }).slice(0, 4);
   }
 
-  debugLog("resolveDoctorsFromArgs:noMatch", {
+  return [];
+}
+
+function entityForDoctor(doc: DoctorRow, fallback: EntitySlug): EntitySlug {
+  if (doc.id.startsWith("dhcc-")) return "dhcc";
+  if (doc.id.startsWith("c37-")) return "c37";
+  return fallback;
+}
+
+/**
+ * Resolve doctors from agent tool args — prefers exact IDs from the directory.
+ * C37 may refer patients to DHCC partner specialists when a specialty is not available at C37.
+ */
+export function resolveDoctorsFromArgs(entity: EntitySlug, args: Record<string, unknown>): DoctorRow[] {
+  const ids = asStringArray(args.doctor_ids);
+  const names = asStringArray(args.doctor_names);
+  const specialty = typeof args.specialty === "string" ? args.specialty : undefined;
+
+  debugLog("resolveDoctorsFromArgs:start", {
     entity,
     ids,
     names,
     specialty,
+    totalDoctorsAvailable: loadDoctors(entity).length,
   });
+
+  // Prefer explicit DHCC IDs even when the active call is C37 (partner referral).
+  if (entity === "c37" && ids.some((id) => id.startsWith("dhcc-"))) {
+    const dhccMatches = resolveDoctorsInEntity("dhcc", args);
+    const c37Matches = resolveDoctorsInEntity("c37", { ...args, doctor_ids: ids.filter((id) => id.startsWith("c37-")) });
+    const merged = [...c37Matches];
+    for (const d of dhccMatches) {
+      if (!merged.some((m) => m.id === d.id)) merged.push(d);
+    }
+    if (merged.length > 0) {
+      debugLog("resolveDoctorsFromArgs:mixedReferral", {
+        matchedIds: merged.map((d) => d.id),
+        matchedNames: merged.map((d) => d.name),
+      });
+      return merged;
+    }
+  }
+
+  const local = resolveDoctorsInEntity(entity, args);
+  if (local.length > 0) {
+    debugLog("resolveDoctorsFromArgs:local", {
+      matchedIds: local.map((d) => d.id),
+      matchedNames: local.map((d) => d.name),
+    });
+    return local;
+  }
+
+  // C37 patient asked for a specialty/name not in C37 → look up DHCC partner doctors.
+  if (entity === "c37") {
+    const referred = resolveDoctorsInEntity("dhcc", args);
+    if (referred.length > 0) {
+      debugLog("resolveDoctorsFromArgs:dhccReferral", {
+        matchedIds: referred.map((d) => d.id),
+        matchedNames: referred.map((d) => d.name),
+      });
+      return referred;
+    }
+  }
+
+  debugLog("resolveDoctorsFromArgs:noMatch", { entity, ids, names, specialty });
   return [];
+}
+
+export function toDoctorCard(entity: EntitySlug, doc: DoctorRow): DoctorCard {
+  const clinicEntity = entityForDoctor(doc, entity);
+  const clinic = getClinicById(clinicEntity, doc.clinic_id);
+  return {
+    id: doc.id,
+    name: doc.name,
+    title: doc.title,
+    specialty: doc.specialty,
+    clinicName: clinic?.name ?? doc.clinic_id,
+    languages: doc.languages.split(",").map((l) => l.trim()),
+    rating: parseFloat(doc.rating) || 4.5,
+    fee: parseInt(doc.consultation_fee_aed, 10) || 0,
+    imageUrl: getDoctorImage(doc),
+  };
 }
 
 export function buildDoctorCards(entity: EntitySlug, args: Record<string, unknown>): DoctorCard[] {
@@ -147,8 +183,18 @@ export function resolveDoctorCardById(
   doctorId: string | undefined
 ): DoctorCard | undefined {
   if (!doctorId) return undefined;
-  const doc = loadDoctors(entity).find((d) => d.id === doctorId);
-  return doc ? toDoctorCard(entity, doc) : undefined;
+  const local = loadDoctors(entity).find((d) => d.id === doctorId);
+  if (local) return toDoctorCard(entity, local);
+  // C37 call booking/referring a DHCC partner doctor
+  if (entity === "c37" || doctorId.startsWith("dhcc-")) {
+    const dhccDoc = loadDoctors("dhcc").find((d) => d.id === doctorId);
+    if (dhccDoc) return toDoctorCard("dhcc", dhccDoc);
+  }
+  if (doctorId.startsWith("c37-")) {
+    const c37Doc = loadDoctors("c37").find((d) => d.id === doctorId);
+    if (c37Doc) return toDoctorCard("c37", c37Doc);
+  }
+  return undefined;
 }
 
 /** Keep the doctor card in sync when slots/booking reference a specific doctor. */
@@ -196,14 +242,21 @@ export function buildSlots(args: Record<string, unknown>): TimeSlot[] {
 
 export function buildBooking(entity: EntitySlug, args: Record<string, unknown>) {
   const doctorId = typeof args.doctor_id === "string" ? args.doctor_id : undefined;
-  const doctors = loadDoctors(entity);
-  const doctor = (doctorId ? doctors.find((d) => d.id === doctorId) : undefined) ?? doctors[0];
-  const clinic = doctor ? getClinicById(entity, doctor.clinic_id) : undefined;
+  const card = resolveDoctorCardById(entity, doctorId);
+  const localDoctors = loadDoctors(entity);
+  const doctorRow =
+    (doctorId
+      ? localDoctors.find((d) => d.id === doctorId) ??
+        (doctorId.startsWith("dhcc-") ? loadDoctors("dhcc").find((d) => d.id === doctorId) : undefined) ??
+        (doctorId.startsWith("c37-") ? loadDoctors("c37").find((d) => d.id === doctorId) : undefined)
+      : undefined) ?? localDoctors[0];
+  const clinicEntity = doctorRow ? entityForDoctor(doctorRow, entity) : entity;
+  const clinic = doctorRow ? getClinicById(clinicEntity, doctorRow.clinic_id) : undefined;
 
   return {
     reference: generateBookingReference(entity),
-    doctorName: doctor?.name ?? "Selected Doctor",
-    clinicName: clinic?.name ?? "DHCC Facility",
+    doctorName: card?.name ?? doctorRow?.name ?? "Selected Doctor",
+    clinicName: card?.clinicName ?? clinic?.name ?? "DHCC Facility",
     date:
       typeof args.date === "string" && args.date
         ? args.date
@@ -215,15 +268,23 @@ export function buildBooking(entity: EntitySlug, args: Record<string, unknown>) 
 }
 
 export function buildDirections(entity: EntitySlug, args: Record<string, unknown>): DirectionsInfo | null {
-  const clinics = loadClinics(entity);
   const clinicId = typeof args.clinic_id === "string" ? args.clinic_id : undefined;
   const name = typeof args.name === "string" ? args.name : undefined;
 
-  const clinic =
-    (clinicId ? clinics.find((c) => c.id === clinicId) : undefined) ??
-    (name ? clinics.find((c) => c.name.toLowerCase().includes(name.toLowerCase())) : undefined) ??
-    clinics[0];
+  const searchEntities: EntitySlug[] =
+    entity === "c37" && (clinicId?.startsWith("dhcc-") || Boolean(name))
+      ? [entity, "dhcc"]
+      : [entity];
 
+  let clinic = undefined as ReturnType<typeof getClinicById>;
+  for (const e of searchEntities) {
+    const clinics = loadClinics(e);
+    clinic =
+      (clinicId ? clinics.find((c) => c.id === clinicId) : undefined) ??
+      (name ? clinics.find((c) => c.name.toLowerCase().includes(name.toLowerCase())) : undefined);
+    if (clinic) break;
+  }
+  if (!clinic) clinic = loadClinics(entity)[0];
   if (!clinic) return null;
 
   const lat = parseFloat(clinic.latitude);

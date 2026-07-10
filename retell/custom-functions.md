@@ -78,7 +78,7 @@ Leave this empty for all four functions. The app updates the screen by polling `
 | Field | Value |
 |-------|-------|
 | Name | `show_doctor_cards` |
-| Description | Display doctor cards on the patient's screen. Call every time you recommend doctors. Pass exact doctor IDs from the Doctor Directory. |
+| Description | Display doctor cards on the patient's screen. Call EVERY time you recommend doctors, including DHCC partner referrals from C37 (pass dhcc-doc-* IDs or specialty). |
 | Method | POST |
 | URL | `YOUR_PUBLIC_URL/api/tools/show-doctor-cards` |
 | Speak during execution | Yes — e.g. "Let me pull up those doctors for you." |

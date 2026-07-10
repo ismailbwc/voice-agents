@@ -8,8 +8,8 @@ import {
   searchDoctors,
 } from "@/lib/csv-loader";
 import { matchDoctorsFromAgentText } from "@/lib/doctor-matcher";
-import { getClinicImage, getDoctorImage } from "@/lib/media";
-import { ensureDistinctDoctorImages } from "@/lib/media";
+import { getClinicImage, getDoctorImage, ensureDistinctDoctorImages } from "@/lib/media";
+import { toDoctorCard } from "@/lib/retell-tools";
 import type { ClinicCard, DoctorCard, DirectionsInfo, TimeSlot } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
@@ -28,20 +28,7 @@ export async function GET(request: NextRequest) {
         ? matchDoctorsFromAgentText(entity, agentText)
         : searchDoctors(entity, { specialty: searchParams.get("specialty") ?? undefined }).slice(0, 4);
       const doctors: DoctorCard[] = ensureDistinctDoctorImages(
-        results.map((doc) => {
-          const clinic = getClinicById(entity, doc.clinic_id);
-          return {
-            id: doc.id,
-            name: doc.name,
-            title: doc.title,
-            specialty: doc.specialty,
-            clinicName: clinic?.name ?? doc.clinic_id,
-            languages: doc.languages.split(",").map((l) => l.trim()),
-            rating: parseFloat(doc.rating) || 4.5,
-            fee: parseInt(doc.consultation_fee_aed, 10) || 0,
-            imageUrl: getDoctorImage(doc),
-          };
-        })
+        results.map((doc) => toDoctorCard(entity, doc))
       );
       return NextResponse.json({ doctors });
     }

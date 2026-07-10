@@ -38,6 +38,7 @@ function scoreDoctor(doc: DoctorRow, agentText: string): number {
 /**
  * Match doctors from the agent's transcript against the entity CSV.
  * Prefers explicit name mentions, then specialty/title overlap from the CSV fields.
+ * For C37, also searches DHCC partner doctors when local matches are weak/empty.
  */
 export function matchDoctorsFromAgentText(
   entity: EntitySlug,
@@ -47,13 +48,35 @@ export function matchDoctorsFromAgentText(
   const trimmed = agentText.trim();
   if (!trimmed) return [];
 
-  const doctors = loadDoctors(entity);
-  const scored = doctors
-    .map((doc) => ({ doc, score: scoreDoctor(doc, trimmed) }))
-    .filter(({ score }) => score >= 20)
-    .sort((a, b) => b.score - a.score);
+  const scorePool = (doctors: DoctorRow[]) =>
+    doctors
+      .map((doc) => ({ doc, score: scoreDoctor(doc, trimmed) }))
+      .filter(({ score }) => score >= 20)
+      .sort((a, b) => b.score - a.score);
 
-  return scored.slice(0, limit).map(({ doc }) => doc);
+  const local = scorePool(loadDoctors(entity));
+  if (entity !== "c37") {
+    return local.slice(0, limit).map(({ doc }) => doc);
+  }
+
+  // C37: prefer local hits, but fill/replace with DHCC partners when the agent
+  // is clearly naming a DHCC doctor or specialty C37 does not have.
+  const dhcc = scorePool(loadDoctors("dhcc"));
+  const strongLocal = local.filter(({ score }) => score >= 45);
+  if (strongLocal.length > 0) {
+    return strongLocal.slice(0, limit).map(({ doc }) => doc);
+  }
+
+  const merged = [...dhcc, ...local];
+  const seen = new Set<string>();
+  const out: DoctorRow[] = [];
+  for (const { doc } of merged) {
+    if (seen.has(doc.id)) continue;
+    seen.add(doc.id);
+    out.push(doc);
+    if (out.length >= limit) break;
+  }
+  return out;
 }
 
 /** Combine recent agent lines into one string for matching. */

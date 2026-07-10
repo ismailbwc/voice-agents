@@ -25,6 +25,7 @@ Upload all files from `docs/c37/`:
 - **doctors-directory.md** (generated from CSV)
 - **facilities-directory.md** (generated from CSV)
 - **workspaces-directory.md** (generated from `workspaces.csv` — physician room booking)
+- **partner-specialists.md** (DHCC referral doctors with `dhcc-doc-*` IDs for specialties C37 does not offer)
 - **specialties-index.md** (generated from CSV)
 
 > After editing `doctors.csv` or `workspaces.csv`, run `npm run sync-kb` to regenerate directory markdown, then re-upload to Retell.
