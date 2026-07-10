@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { MessageCircle } from "lucide-react";
 import type { EntitySlug, EntityTheme } from "@/lib/entities";
 import type { UiSessionState, WorkspaceType } from "@/lib/types";
+import { BookingReveal } from "./BookingReveal";
 
 interface AgenticPanelProps {
   uiState: UiSessionState | null;
@@ -63,7 +65,7 @@ export function AgenticPanel({ uiState, theme, entitySlug }: AgenticPanelProps) 
           className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
           style={{ backgroundColor: theme.chip, color: theme.primaryLight }}
         >
-          <ChatIcon />
+          <MessageCircle className="h-7 w-7" strokeWidth={2} />
         </div>
         <h3 className="text-lg font-semibold text-[#0B1F3A]">How can I help you today?</h3>
         <p className="mt-2 max-w-sm text-sm text-slate-500">
@@ -300,43 +302,50 @@ export function AgenticPanel({ uiState, theme, entitySlug }: AgenticPanelProps) 
       )}
 
       {uiState.booking && (
-        <div
-          className="rounded-2xl border p-4"
-          style={{ borderColor: `${theme.primaryLight}44`, backgroundColor: `${theme.chip}` }}
-        >
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Booking Confirmed</p>
-          <p className="mt-2 text-2xl font-bold" style={{ color: theme.primaryLight }}>
-            {uiState.booking.reference}
-          </p>
-          <div className="mt-3 space-y-1 text-sm text-slate-700">
-            <p><span className="text-slate-400">Patient:</span> {uiState.booking.patientName}</p>
-            <p><span className="text-slate-400">Doctor:</span> {uiState.booking.doctorName}</p>
-            <p><span className="text-slate-400">Clinic:</span> {uiState.booking.clinicName}</p>
-            <p><span className="text-slate-400">When:</span> {uiState.booking.date} at {uiState.booking.time}</p>
+        <BookingReveal bookingKey={uiState.booking.reference} bookingLabel="AI is booking for you…">
+          <div
+            className="rounded-2xl border p-4"
+            style={{ borderColor: `${theme.primaryLight}44`, backgroundColor: `${theme.chip}` }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Booking Confirmed</p>
+            <p className="mt-2 text-2xl font-bold" style={{ color: theme.primaryLight }}>
+              {uiState.booking.reference}
+            </p>
+            <div className="mt-3 space-y-1 text-sm text-slate-700">
+              <p><span className="text-slate-400">Patient:</span> {uiState.booking.patientName}</p>
+              <p><span className="text-slate-400">Doctor:</span> {uiState.booking.doctorName}</p>
+              <p><span className="text-slate-400">Clinic:</span> {uiState.booking.clinicName}</p>
+              <p><span className="text-slate-400">When:</span> {uiState.booking.date} at {uiState.booking.time}</p>
+            </div>
           </div>
-        </div>
+        </BookingReveal>
       )}
 
       {uiState.workspaceBooking && (
-        <div
-          className="rounded-2xl border p-4"
-          style={{ borderColor: `${theme.accent}44`, backgroundColor: "#F0FDFA" }}
+        <BookingReveal
+          bookingKey={uiState.workspaceBooking.reference}
+          bookingLabel="AI is reserving your workspace…"
         >
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Workspace Reserved</p>
-          <p className="mt-2 text-2xl font-bold" style={{ color: theme.accent }}>
-            {uiState.workspaceBooking.reference}
-          </p>
-          <div className="mt-3 space-y-1 text-sm text-slate-700">
-            <p><span className="text-slate-400">Physician:</span> {uiState.workspaceBooking.physicianName}</p>
-            <p><span className="text-slate-400">Workspace:</span> {uiState.workspaceBooking.workspaceName}</p>
-            <p><span className="text-slate-400">Facility:</span> {uiState.workspaceBooking.facilityName}</p>
-            <p><span className="text-slate-400">Start:</span> {uiState.workspaceBooking.date}</p>
-            <p>
-              <span className="text-slate-400">Plan:</span>{" "}
-              {billingLabel(uiState.workspaceBooking.billingPeriod)} · AED {uiState.workspaceBooking.rateAed}
+          <div
+            className="rounded-2xl border p-4"
+            style={{ borderColor: `${theme.accent}44`, backgroundColor: "#F0FDFA" }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Workspace Reserved</p>
+            <p className="mt-2 text-2xl font-bold" style={{ color: theme.accent }}>
+              {uiState.workspaceBooking.reference}
             </p>
+            <div className="mt-3 space-y-1 text-sm text-slate-700">
+              <p><span className="text-slate-400">Physician:</span> {uiState.workspaceBooking.physicianName}</p>
+              <p><span className="text-slate-400">Workspace:</span> {uiState.workspaceBooking.workspaceName}</p>
+              <p><span className="text-slate-400">Facility:</span> {uiState.workspaceBooking.facilityName}</p>
+              <p><span className="text-slate-400">Start:</span> {uiState.workspaceBooking.date}</p>
+              <p>
+                <span className="text-slate-400">Plan:</span>{" "}
+                {billingLabel(uiState.workspaceBooking.billingPeriod)} · AED {uiState.workspaceBooking.rateAed}
+              </p>
+            </div>
           </div>
-        </div>
+        </BookingReveal>
       )}
 
       {uiState.directions && (
@@ -369,24 +378,5 @@ export function AgenticPanel({ uiState, theme, entitySlug }: AgenticPanelProps) 
         </div>
       )}
     </div>
-  );
-}
-
-function ChatIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M8 10h8M8 14h5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M21 12a8.5 8.5 0 0 1-11.5 8L4 21l1.2-4A8.5 8.5 0 1 1 21 12Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

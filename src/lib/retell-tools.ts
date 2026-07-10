@@ -11,7 +11,7 @@ import {
   searchDoctors,
   searchWorkspaces,
 } from "./csv-loader";
-import { getClinicImage, getDoctorImage, getWorkspaceImage } from "./media";
+import { getClinicImage, getDoctorImage, getWorkspaceImage, ensureDistinctDoctorImages } from "./media";
 import type {
   BillingPeriod,
   ClinicCard,
@@ -137,7 +137,9 @@ export function resolveDoctorsFromArgs(entity: EntitySlug, args: Record<string, 
 }
 
 export function buildDoctorCards(entity: EntitySlug, args: Record<string, unknown>): DoctorCard[] {
-  return resolveDoctorsFromArgs(entity, args).map((d) => toDoctorCard(entity, d));
+  return ensureDistinctDoctorImages(
+    resolveDoctorsFromArgs(entity, args).map((d) => toDoctorCard(entity, d))
+  );
 }
 
 export function resolveDoctorCardById(

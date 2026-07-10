@@ -19,28 +19,50 @@ const CLINIC_IMAGES = [
   "/clinics/clinic-suite.avif",
 ] as const;
 
+const FEMALE_DOCTOR_IDS = new Set([
+  "dhcc-doc-002",
+  "dhcc-doc-004",
+  "dhcc-doc-006",
+  "dhcc-doc-008",
+  "dhcc-doc-010",
+  "dhcc-doc-012",
+  "dhcc-doc-014",
+  "c37-doc-002",
+  "c37-doc-004",
+  "c37-doc-005",
+  "c37-doc-006",
+  "c37-doc-009",
+  "c37-doc-011",
+  "c37-doc-012",
+  "c37-doc-014",
+]);
+
+/** All known doctor IDs (for stable round-robin assignment). */
+const ALL_DOCTOR_IDS = [
+  "dhcc-doc-001", "dhcc-doc-002", "dhcc-doc-003", "dhcc-doc-004", "dhcc-doc-005",
+  "dhcc-doc-006", "dhcc-doc-007", "dhcc-doc-008", "dhcc-doc-009", "dhcc-doc-010",
+  "dhcc-doc-011", "dhcc-doc-012", "dhcc-doc-013", "dhcc-doc-014", "dhcc-doc-015",
+  "c37-doc-001", "c37-doc-002", "c37-doc-003", "c37-doc-004", "c37-doc-005",
+  "c37-doc-006", "c37-doc-007", "c37-doc-008", "c37-doc-009", "c37-doc-010",
+  "c37-doc-011", "c37-doc-012", "c37-doc-013", "c37-doc-014",
+];
+
 /** Explicit overrides — Fatima always uses doctor_f2. */
 const DOCTOR_IMAGE_BY_ID: Record<string, string> = {
   "dhcc-doc-004": "/doctors/doctor_f2.jpg",
 };
 
-const FEMALE_DOCTOR_IDS = new Set([
-  "dhcc-doc-002", // Aisha
-  "dhcc-doc-004", // Fatima
-  "dhcc-doc-006", // Sarah
-  "dhcc-doc-008", // Priya
-  "dhcc-doc-010", // Layla
-  "dhcc-doc-012", // Elena
-  "dhcc-doc-014", // Maria
-  "c37-doc-002", // Rasha
-  "c37-doc-004", // Suhad
-  "c37-doc-005", // Candice
-  "c37-doc-006", // Pearl
-  "c37-doc-009", // Marjorie
-  "c37-doc-011", // Suha
-  "c37-doc-012", // Nadia
-  "c37-doc-014", // Isabelle
-]);
+// Round-robin within gender so nearby IDs (e.g. c37-doc-007 vs 010) get different photos.
+(() => {
+  const females = ALL_DOCTOR_IDS.filter((id) => FEMALE_DOCTOR_IDS.has(id) && id !== "dhcc-doc-004");
+  const males = ALL_DOCTOR_IDS.filter((id) => !FEMALE_DOCTOR_IDS.has(id));
+  females.forEach((id, i) => {
+    DOCTOR_IMAGE_BY_ID[id] = FEMALE_DOCTOR_IMAGES[i % FEMALE_DOCTOR_IMAGES.length];
+  });
+  males.forEach((id, i) => {
+    DOCTOR_IMAGE_BY_ID[id] = MALE_DOCTOR_IMAGES[i % MALE_DOCTOR_IMAGES.length];
+  });
+})();
 
 const CLINIC_IMAGE_BY_ID: Record<string, string> = {
   "dhcc-habib": "/clinics/clinic-1.jpg",
@@ -76,12 +98,38 @@ function looksFemaleName(name: string): boolean {
 }
 
 export function getDoctorImage(doctor: { id: string; name: string }): string {
-  if (DOCTOR_IMAGE_BY_ID[doctor.id]) return DOCTOR_IMAGE_BY_ID[doctor.id];
-  if (doctor.name.toLowerCase().includes("fatima al hashimi")) {
+  if (doctor.name.toLowerCase().includes("fatima al hashimi") || doctor.id === "dhcc-doc-004") {
     return "/doctors/doctor_f2.jpg";
   }
+  if (DOCTOR_IMAGE_BY_ID[doctor.id]) return DOCTOR_IMAGE_BY_ID[doctor.id];
   const isFemale = FEMALE_DOCTOR_IDS.has(doctor.id) || looksFemaleName(doctor.name);
   return pickFromPool(doctor.id, isFemale ? FEMALE_DOCTOR_IMAGES : MALE_DOCTOR_IMAGES);
+}
+
+/**
+ * Ensure doctors shown together don't share the same photo when alternatives exist.
+ */
+export function ensureDistinctDoctorImages<T extends { id: string; name: string; imageUrl: string }>(
+  doctors: T[]
+): T[] {
+  const used = new Set<string>();
+  return doctors.map((doc) => {
+    let imageUrl = doc.imageUrl;
+    if (doc.id === "dhcc-doc-004" || doc.name.toLowerCase().includes("fatima al hashimi")) {
+      imageUrl = "/doctors/doctor_f2.jpg";
+      used.add(imageUrl);
+      return { ...doc, imageUrl };
+    }
+    if (!used.has(imageUrl)) {
+      used.add(imageUrl);
+      return { ...doc, imageUrl };
+    }
+    const isFemale = FEMALE_DOCTOR_IDS.has(doc.id) || looksFemaleName(doc.name);
+    const pool = isFemale ? FEMALE_DOCTOR_IMAGES : MALE_DOCTOR_IMAGES;
+    const alternate = pool.find((url) => !used.has(url)) ?? imageUrl;
+    used.add(alternate);
+    return { ...doc, imageUrl: alternate };
+  });
 }
 
 export function getClinicImage(clinicId: string): string {
