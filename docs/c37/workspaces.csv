@@ -1,0 +1,9 @@
+id,facility_id,name,type,capacity,amenities,rate_daily_aed,rate_weekly_aed,rate_monthly_aed,availability_days,floor
+c37-ws-001,c37-oud-metha,Consulting Room A,consulting_room,3,"Exam desk,sink,Wi-Fi,EHR terminal,waiting chair",800,4500,15000,"Mon,Tue,Wed,Thu,Fri",2
+c37-ws-002,c37-oud-metha,Consulting Room B,consulting_room,3,"Exam desk,sink,Wi-Fi,EHR terminal,waiting chair",800,4500,15000,"Mon,Tue,Wed,Thu,Fri",2
+c37-ws-003,c37-oud-metha,Exam Room 1,exam_room,4,"Exam bed,sink,medical cabinet,Wi-Fi,EHR terminal",950,5200,17500,"Mon,Tue,Wed,Thu,Fri",2
+c37-ws-004,c37-oud-metha,Private Office North,private_office,2,"Desk,storage,Wi-Fi,phone line,EHR terminal",650,3600,12000,"Mon,Tue,Wed,Thu,Fri",3
+c37-ws-005,c37-al-jaddaf,Consulting Room C,consulting_room,3,"Exam desk,sink,Wi-Fi,EHR terminal,waiting chair",850,4800,16000,"Mon,Tue,Wed,Thu,Fri",1
+c37-ws-006,c37-al-jaddaf,Consulting Room D,consulting_room,3,"Exam desk,sink,Wi-Fi,EHR terminal,waiting chair",850,4800,16000,"Mon,Tue,Wed,Thu,Fri",1
+c37-ws-007,c37-al-jaddaf,Exam Room 2,exam_room,4,"Exam bed,sink,medical cabinet,Wi-Fi,EHR terminal,procedure light",1000,5500,18500,"Mon,Tue,Wed,Thu,Fri,Sat",1
+c37-ws-008,c37-al-jaddaf,Private Office South,private_office,2,"Desk,storage,Wi-Fi,phone line,EHR terminal",700,3900,13000,"Mon,Tue,Wed,Thu,Fri",2

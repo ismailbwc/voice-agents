@@ -2,13 +2,29 @@ import type { EntitySlug } from "./entities";
 import {
   generateBookingReference,
   generateMockSlots,
+  generateWorkspaceBookingReference,
   getClinicById,
+  getWorkspaceById,
   loadClinics,
   loadDoctors,
   searchClinics,
   searchDoctors,
+  searchWorkspaces,
 } from "./csv-loader";
-import type { ClinicCard, DoctorCard, DoctorRow, DirectionsInfo, TimeSlot, UiSessionState } from "./types";
+import type {
+  BillingPeriod,
+  ClinicCard,
+  DoctorCard,
+  DoctorRow,
+  DirectionsInfo,
+  MembershipInfo,
+  TimeSlot,
+  UiSessionState,
+  WorkspaceCard,
+  WorkspaceBookingConfirmation,
+  WorkspaceRow,
+  WorkspaceType,
+} from "./types";
 
 const DEBUG_RETELL_TOOLS = process.env.NODE_ENV !== "production";
 
@@ -212,5 +228,110 @@ export function buildDirections(entity: EntitySlug, args: Record<string, unknown
     address: clinic.address,
     phone: clinic.phone,
     mapUrl: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+  };
+}
+
+function toWorkspaceType(value: string): WorkspaceType {
+  if (value === "exam_room" || value === "private_office") return value;
+  return "consulting_room";
+}
+
+function toBillingPeriod(value: unknown): BillingPeriod {
+  if (value === "weekly" || value === "monthly") return value;
+  return "daily";
+}
+
+export function toWorkspaceCard(row: WorkspaceRow): WorkspaceCard {
+  const facility = getClinicById("c37", row.facility_id);
+  return {
+    id: row.id,
+    name: row.name,
+    type: toWorkspaceType(row.type),
+    facilityName: facility?.name ?? row.facility_id,
+    facilityId: row.facility_id,
+    capacity: parseInt(row.capacity, 10) || 1,
+    amenities: row.amenities.split(",").map((a) => a.trim()).filter(Boolean),
+    rateDaily: parseInt(row.rate_daily_aed, 10) || 0,
+    rateWeekly: parseInt(row.rate_weekly_aed, 10) || 0,
+    rateMonthly: parseInt(row.rate_monthly_aed, 10) || 0,
+    availabilityDays: row.availability_days.split(",").map((d) => d.trim()).filter(Boolean),
+    floor: row.floor,
+  };
+}
+
+export function resolveWorkspacesFromArgs(args: Record<string, unknown>): WorkspaceRow[] {
+  const ids = asStringArray(args.workspace_ids);
+  const facilityId = typeof args.facility_id === "string" ? args.facility_id : undefined;
+  const type = typeof args.type === "string" ? args.type : undefined;
+
+  debugLog("resolveWorkspacesFromArgs", { ids, facilityId, type });
+
+  const results = searchWorkspaces({
+    workspace_ids: ids.length > 0 ? ids : undefined,
+    facility_id: facilityId,
+    type,
+  });
+  return results.slice(0, 4);
+}
+
+export function buildWorkspaceCards(args: Record<string, unknown>): WorkspaceCard[] {
+  return resolveWorkspacesFromArgs(args).map(toWorkspaceCard);
+}
+
+export function syncWorkspaceFromArgs(
+  args: Record<string, unknown>
+): Pick<UiSessionState, "workspaces" | "selectedWorkspaceId"> {
+  const workspaceId = typeof args.workspace_id === "string" ? args.workspace_id : undefined;
+  if (!workspaceId) return {};
+  const row = getWorkspaceById(workspaceId);
+  if (!row) return {};
+  const card = toWorkspaceCard(row);
+  return { selectedWorkspaceId: card.id, workspaces: [card] };
+}
+
+export function buildMembershipInfo(_args: Record<string, unknown> = {}): MembershipInfo {
+  return {
+    title: "C37 Physician Membership",
+    highlights: [
+      "Private offices and fully equipped exam rooms",
+      "On-site nursing and administrative staff",
+      "Patient registration, billing, and insurance processing",
+      "Medical malpractice insurance coverage",
+      "DHA licensing and visa support for visiting specialists",
+      "IT / EHR support and partner lab access",
+    ],
+    pricingModel: "Subscription or pay-as-you-go — book daily, weekly, or monthly without clinic build-out costs.",
+    applyUrl: "https://c37.ae",
+    phone: "+971 4 383 8333",
+  };
+}
+
+export function buildWorkspaceBooking(args: Record<string, unknown>): WorkspaceBookingConfirmation {
+  const workspaceId = typeof args.workspace_id === "string" ? args.workspace_id : undefined;
+  const workspaces = searchWorkspaces({});
+  const row = (workspaceId ? getWorkspaceById(workspaceId) : undefined) ?? workspaces[0];
+  const card = row ? toWorkspaceCard(row) : undefined;
+  const billingPeriod = toBillingPeriod(args.billing_period);
+  const rateAed =
+    billingPeriod === "weekly"
+      ? card?.rateWeekly ?? 0
+      : billingPeriod === "monthly"
+        ? card?.rateMonthly ?? 0
+        : card?.rateDaily ?? 0;
+
+  return {
+    reference: generateWorkspaceBookingReference(),
+    workspaceName: card?.name ?? "Selected Workspace",
+    facilityName: card?.facilityName ?? "C37 Facility",
+    physicianName:
+      typeof args.physician_name === "string" && args.physician_name
+        ? args.physician_name
+        : "Guest Physician",
+    date:
+      typeof args.date === "string" && args.date
+        ? args.date
+        : new Date().toISOString().split("T")[0],
+    billingPeriod,
+    rateAed,
   };
 }

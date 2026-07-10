@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import Papa from "papaparse";
 import type { EntitySlug } from "./entities";
-import type { ClinicRow, DoctorRow, FacilityRow } from "./types";
+import type { ClinicRow, DoctorRow, FacilityRow, WorkspaceRow } from "./types";
 
 const DOCS_ROOT = path.join(process.cwd(), "docs");
 
@@ -43,6 +43,34 @@ export function loadClinics(entity: EntitySlug): ClinicRow[] {
 
 export function getClinicById(entity: EntitySlug, clinicId: string): ClinicRow | undefined {
   return loadClinics(entity).find((c) => c.id === clinicId);
+}
+
+export function loadWorkspaces(): WorkspaceRow[] {
+  const file = path.join(DOCS_ROOT, "c37", "workspaces.csv");
+  return readCsv<WorkspaceRow>(file);
+}
+
+export function getWorkspaceById(workspaceId: string): WorkspaceRow | undefined {
+  return loadWorkspaces().find((w) => w.id === workspaceId);
+}
+
+export function searchWorkspaces(filters: {
+  facility_id?: string;
+  type?: string;
+  workspace_ids?: string[];
+}): WorkspaceRow[] {
+  const all = loadWorkspaces();
+  if (filters.workspace_ids && filters.workspace_ids.length > 0) {
+    const byId = filters.workspace_ids
+      .map((id) => all.find((w) => w.id === id))
+      .filter((w): w is WorkspaceRow => !!w);
+    if (byId.length > 0) return byId;
+  }
+  return all.filter((w) => {
+    if (filters.facility_id && w.facility_id !== filters.facility_id) return false;
+    if (filters.type && w.type.toLowerCase() !== filters.type.toLowerCase()) return false;
+    return true;
+  });
 }
 
 export function searchDoctors(
@@ -95,4 +123,9 @@ export function generateBookingReference(entity: EntitySlug): string {
   const prefix = entity === "dhcc" ? "DHCC" : "C37";
   const num = Math.floor(1000 + Math.random() * 9000);
   return `${prefix}-2026-${num}`;
+}
+
+export function generateWorkspaceBookingReference(): string {
+  const num = Math.floor(1000 + Math.random() * 9000);
+  return `C37-WS-2026-${num}`;
 }

@@ -124,6 +124,40 @@ function generateSpecialtiesMd(entityLabel, doctors) {
   return lines.join("\n");
 }
 
+function generateWorkspacesMd(workspaces, facilityMap) {
+  const lines = [
+    `# C37 Workspaces Directory`,
+    "",
+    "Authoritative list of bookable consulting rooms, exam rooms, and private offices for physician members. When a physician wants to book workspace, recommend only from this list and use the exact **ID** in `show_workspace_cards`.",
+    "",
+    "> Auto-generated from workspaces.csv. Run `npm run sync-kb` after editing the CSV.",
+    "",
+  ];
+
+  for (const [type, rooms] of groupBy(workspaces, "type")) {
+    const label =
+      type === "exam_room" ? "Exam Rooms" : type === "private_office" ? "Private Offices" : "Consulting Rooms";
+    lines.push(`## ${label}`, "");
+    for (const w of rooms) {
+      const facility = facilityMap.get(w.facility_id) ?? w.facility_id;
+      lines.push(`### ${w.name}`);
+      lines.push(`- **ID:** ${w.id}`);
+      lines.push(`- **Type:** ${w.type}`);
+      lines.push(`- **Facility:** ${facility} (${w.facility_id})`);
+      lines.push(`- **Floor:** ${w.floor}`);
+      lines.push(`- **Capacity:** ${w.capacity}`);
+      lines.push(`- **Amenities:** ${w.amenities}`);
+      lines.push(`- **Availability:** ${w.availability_days}`);
+      lines.push(`- **Daily rate:** AED ${w.rate_daily_aed}`);
+      lines.push(`- **Weekly rate:** AED ${w.rate_weekly_aed}`);
+      lines.push(`- **Monthly rate:** AED ${w.rate_monthly_aed}`);
+      lines.push("");
+    }
+  }
+
+  return lines.join("\n");
+}
+
 function syncEntity(entity, label, clinicFile, clinicIsFacility = false) {
   const dir = path.join(DOCS_ROOT, entity);
   const doctors = readCsv(path.join(dir, "doctors.csv"));
@@ -141,7 +175,17 @@ function syncEntity(entity, label, clinicFile, clinicIsFacility = false) {
   );
   fs.writeFileSync(path.join(dir, "specialties-index.md"), specialtiesMd);
 
-  console.log(`✓ ${entity}: doctors-directory.md, ${clinicIsFacility ? "facilities" : "clinics"}-directory.md, specialties-index.md`);
+  let extra = "";
+  if (entity === "c37") {
+    const workspaces = readCsv(path.join(dir, "workspaces.csv"));
+    const workspacesMd = generateWorkspacesMd(workspaces, clinicMap);
+    fs.writeFileSync(path.join(dir, "workspaces-directory.md"), workspacesMd);
+    extra = ", workspaces-directory.md";
+  }
+
+  console.log(
+    `✓ ${entity}: doctors-directory.md, ${clinicIsFacility ? "facilities" : "clinics"}-directory.md, specialties-index.md${extra}`
+  );
 }
 
 syncEntity("dhcc", "Dubai Healthcare City (DHCC)", "clinics.csv", false);

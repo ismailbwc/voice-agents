@@ -17,8 +17,6 @@ Upload all files from `docs/dhcc/`:
 - **clinics-directory.md** (generated from CSV)
 - **specialties-index.md** (generated from CSV)
 
-
-
 ### C37 Knowledge Base
 
 Upload all files from `docs/c37/`:
@@ -26,11 +24,10 @@ Upload all files from `docs/c37/`:
 - overview.md, services.md, membership.md, faqs.md
 - **doctors-directory.md** (generated from CSV)
 - **facilities-directory.md** (generated from CSV)
+- **workspaces-directory.md** (generated from `workspaces.csv` — physician room booking)
 - **specialties-index.md** (generated from CSV)
 
-> After editing `doctors.csv`, run `npm run sync-kb` to regenerate directory markdown, then re-upload to Retell.
-
-
+> After editing `doctors.csv` or `workspaces.csv`, run `npm run sync-kb` to regenerate directory markdown, then re-upload to Retell.
 
 ## 2. Create Voice Agents
 
@@ -47,8 +44,9 @@ Copy the full prompt text from each `.md` file into the agent's system prompt in
 
 ## 3. Add Custom Functions
 
-See **[retell/custom-functions.md](custom-functions.md)** for full configuration of all four functions:
+See **[retell/custom-functions.md](custom-functions.md)** for full configuration.
 
+**Shared (DHCC + C37 patient path):**
 
 | Function                    | Purpose                                                   |
 | --------------------------- | --------------------------------------------------------- |
@@ -57,6 +55,14 @@ See **[retell/custom-functions.md](custom-functions.md)** for full configuration
 | `show_booking_confirmation` | Shows booking ticket                                      |
 | `show_directions`           | Shows directions card                                     |
 
+**C37-only (physician workspace path):**
+
+| Function                   | Purpose                                                        |
+| -------------------------- | -------------------------------------------------------------- |
+| `show_membership_overview` | Membership benefits card for physician callers                 |
+| `show_workspace_cards`     | Consulting / exam / private office cards from `workspaces.csv` |
+| `show_workspace_slots`     | Availability for a workspace reservation                       |
+| `show_workspace_booking`   | Workspace reservation ticket (`C37-WS-2026-####`)              |
 
 **Important:** Function URLs must be publicly reachable. Use ngrok for local dev or deploy to Vercel.
 
@@ -78,8 +84,6 @@ RETELL_AGENT_ID_DHCC=agent_id_for_dhcc
 RETELL_AGENT_ID_C37=agent_id_for_c37
 ```
 
-
-
 ## 5. How the UI Works
 
 ```
@@ -94,23 +98,23 @@ Browser polls GET /api/ui-state/{call_id} every 700ms
 Doctor cards appear in the side panel
 ```
 
-
-| Agent action                      | UI shows                          |
-| --------------------------------- | --------------------------------- |
-| Calls `show_doctor_cards`         | Doctor cards (exact IDs from CSV) |
-| Calls `show_time_slots`           | Time slots                        |
-| Calls `show_booking_confirmation` | Booking ticket                    |
-| Calls `show_directions`           | Directions card                   |
-
-
-
+| Agent action                     | UI shows                          |
+| -------------------------------- | --------------------------------- |
+| Calls `show_doctor_cards`        | Doctor cards (exact IDs from CSV) |
+| Calls `show_time_slots`          | Time slots                        |
+| Calls `show_booking_confirmation`| Booking ticket                    |
+| Calls `show_directions`          | Directions card                   |
+| Calls `show_membership_overview` | Membership benefits (C37)         |
+| Calls `show_workspace_cards`     | Workspace / room cards (C37)      |
+| Calls `show_workspace_slots`     | Workspace availability (C37)      |
+| Calls `show_workspace_booking`   | Workspace reservation ticket      |
 
 ## 6. Test Checklist
 
 - [ ] Deploy or run ngrok so Retell can reach `/api/tools/*`
-- [ ] Configure all 4 custom functions in Retell (see custom-functions.md)
-- [ ] Re-upload doctors-directory.md after `npm run sync-kb`
-- [ ] Start call on `/c37` — ask for plastic surgeon
-- [ ] Agent should call `show_doctor_cards` with `c37-doc-007`, `c37-doc-010`
-- [ ] Doctor cards appear in side panel
-- [ ] Complete booking flow — slots and confirmation appear
+- [ ] Configure patient functions on both agents; add C37-only workspace functions on C37 agent only
+- [ ] Re-paste `lib/prompts/c37-agent.md` into the C37 agent
+- [ ] Run `npm run sync-kb` and upload `doctors-directory.md` + `workspaces-directory.md` to C37 KB
+- [ ] Start call on `/c37` — answer "patient" → ask for plastic surgeon → doctor cards appear
+- [ ] Start call on `/c37` — answer "physician" → ask for consulting room at Oud Metha → workspace cards appear
+- [ ] Complete workspace booking — slots and `C37-WS-2026-####` confirmation appear

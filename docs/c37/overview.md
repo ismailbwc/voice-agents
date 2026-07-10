@@ -40,11 +40,17 @@ Major procedures and hospital admissions are typically referred to partner DHCC 
 
 ## What the Virtual Receptionist Can Help With
 
+### Patients
 - Finding C37 doctors by specialty
-- Explaining membership benefits (for physician inquiries)
 - Booking consultations with C37 doctors (demo)
 - Providing facility locations and hours
 - Answering insurance and billing questions
+
+### Physicians (members / visiting doctors)
+- Explaining membership benefits
+- Booking consulting rooms, exam rooms, and private offices (demo)
+- Daily, weekly, or monthly workspace reservations
+- Directions to Oud Metha and Al Jaddaf facilities
 - Explaining how C37 connects to the broader DHCC ecosystem
 
 ## Important Boundaries

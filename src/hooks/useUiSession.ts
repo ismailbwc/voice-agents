@@ -50,6 +50,9 @@ export function useUiSession(callId: string | null, active: boolean) {
             if (data.action === "SHOW_DOCTOR_CARDS") {
               next.doctors = data.doctors ?? [];
             }
+            if (data.action === "SHOW_WORKSPACE_CARDS") {
+              next.workspaces = data.workspaces ?? [];
+            }
             return next;
           });
         } else if (DEBUG_UI_SESSION) {

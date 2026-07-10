@@ -189,6 +189,130 @@ Leave this empty for all four functions. The app updates the screen by polling `
 
 ---
 
+## C37-only functions (physician workspace booking)
+
+Add these **only on the C37 Retell agent**, not DHCC. Physicians are also C37 customers — they book consulting rooms, exam rooms, and private offices.
+
+### 5. show_membership_overview
+
+| Field | Value |
+|-------|-------|
+| Name | `show_membership_overview` |
+| Description | Display C37 physician membership benefits on the caller's screen when a doctor asks about joining or what's included. |
+| Method | POST |
+| URL | `YOUR_PUBLIC_URL/api/tools/show-membership-overview` |
+| Speak during execution | Yes |
+| Speak after execution | Yes |
+
+**Parameters:**
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "Optional focus topic, e.g. licensing, billing, facilities"
+    }
+  }
+}
+```
+
+### 6. show_workspace_cards
+
+| Field | Value |
+|-------|-------|
+| Name | `show_workspace_cards` |
+| Description | Display bookable C37 workspace cards (consulting rooms, exam rooms, private offices) for physician callers. Always call this before describing rooms aloud. |
+| Method | POST |
+| URL | `YOUR_PUBLIC_URL/api/tools/show-workspace-cards` |
+| Speak during execution | Yes |
+| Speak after execution | Yes |
+
+**Parameters:**
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "workspace_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Exact workspace IDs from the Workspaces Directory, e.g. c37-ws-001"
+    },
+    "facility_id": {
+      "type": "string",
+      "description": "Filter by facility: c37-oud-metha or c37-al-jaddaf"
+    },
+    "type": {
+      "type": "string",
+      "description": "Filter by room type: consulting_room, exam_room, or private_office"
+    }
+  }
+}
+```
+
+### 7. show_workspace_slots
+
+| Field | Value |
+|-------|-------|
+| Name | `show_workspace_slots` |
+| Description | Display available start times for a C37 workspace reservation on the caller's screen. |
+| Method | POST |
+| URL | `YOUR_PUBLIC_URL/api/tools/show-workspace-slots` |
+| Speak during execution | Yes |
+| Speak after execution | Yes |
+
+**Parameters:**
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "description": "Workspace ID from the Workspaces Directory"
+    },
+    "date": {
+      "type": "string",
+      "description": "Start date in YYYY-MM-DD format"
+    },
+    "billing_period": {
+      "type": "string",
+      "description": "daily, weekly, or monthly"
+    }
+  }
+}
+```
+
+### 8. show_workspace_booking
+
+| Field | Value |
+|-------|-------|
+| Name | `show_workspace_booking` |
+| Description | Display workspace reservation confirmation ticket after a physician books a room. |
+| Method | POST |
+| URL | `YOUR_PUBLIC_URL/api/tools/show-workspace-booking` |
+| Speak during execution | No |
+| Speak after execution | Yes |
+
+**Parameters:**
+
+```json
+{
+  "type": "object",
+  "required": ["physician_name", "workspace_id"],
+  "properties": {
+    "workspace_id": { "type": "string", "description": "Workspace ID from directory" },
+    "physician_name": { "type": "string", "description": "Physician full name" },
+    "date": { "type": "string", "description": "YYYY-MM-DD start date" },
+    "billing_period": { "type": "string", "description": "daily, weekly, or monthly" }
+  }
+}
+```
+
+---
+
 ## Local development with ngrok
 
 ```bash
@@ -199,9 +323,9 @@ npm run dev
 ngrok http 3000
 ```
 
-Use the ngrok HTTPS URL as `YOUR_PUBLIC_URL` in all four function URLs above.
+Use the ngrok HTTPS URL as `YOUR_PUBLIC_URL` in all function URLs above.
 
-After editing `doctors.csv`, run `npm run sync-kb` and re-upload `doctors-directory.md` to Retell so the agent sees the **ID** field for each doctor.
+After editing `doctors.csv` or `workspaces.csv`, run `npm run sync-kb` and re-upload the generated `*-directory.md` files to Retell so the agent sees the **ID** fields.
 
 ## Disable end_call
 

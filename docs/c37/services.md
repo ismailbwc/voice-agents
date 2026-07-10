@@ -48,3 +48,4 @@ C37 has strategic partnerships bringing visiting specialists to the UAE:
 
 - `doctors.csv` — C37 physician directory
 - `facilities.csv` — C37 workspace locations and amenities
+- `workspaces.csv` — Bookable consulting rooms, exam rooms, and private offices for physician members

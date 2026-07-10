@@ -5,7 +5,14 @@ export type UiActionType =
   | "SHOW_BOOKING_CONFIRMATION"
   | "SHOW_DIRECTIONS"
   | "SHOW_VISIT_SUMMARY"
+  | "SHOW_MEMBERSHIP"
+  | "SHOW_WORKSPACE_CARDS"
+  | "SHOW_WORKSPACE_SLOTS"
+  | "SHOW_WORKSPACE_BOOKING"
   | "CLEAR";
+
+export type WorkspaceType = "consulting_room" | "exam_room" | "private_office";
+export type BillingPeriod = "daily" | "weekly" | "monthly";
 
 export interface DoctorCard {
   id: string;
@@ -50,6 +57,39 @@ export interface DirectionsInfo {
   phone: string;
 }
 
+export interface WorkspaceCard {
+  id: string;
+  name: string;
+  type: WorkspaceType;
+  facilityName: string;
+  facilityId: string;
+  capacity: number;
+  amenities: string[];
+  rateDaily: number;
+  rateWeekly: number;
+  rateMonthly: number;
+  availabilityDays: string[];
+  floor: string;
+}
+
+export interface MembershipInfo {
+  title: string;
+  highlights: string[];
+  pricingModel: string;
+  applyUrl: string;
+  phone: string;
+}
+
+export interface WorkspaceBookingConfirmation {
+  reference: string;
+  workspaceName: string;
+  facilityName: string;
+  physicianName: string;
+  date: string;
+  billingPeriod: BillingPeriod;
+  rateAed: number;
+}
+
 export interface UiSessionState {
   action: UiActionType;
   doctors?: DoctorCard[];
@@ -59,6 +99,10 @@ export interface UiSessionState {
   slots?: TimeSlot[];
   booking?: BookingConfirmation;
   directions?: DirectionsInfo;
+  workspaces?: WorkspaceCard[];
+  selectedWorkspaceId?: string;
+  membership?: MembershipInfo;
+  workspaceBooking?: WorkspaceBookingConfirmation;
   updatedAt: number;
 }
 
@@ -107,6 +151,20 @@ export interface FacilityRow {
   longitude: string;
   insurance_accepted: string;
   website: string;
+}
+
+export interface WorkspaceRow {
+  id: string;
+  facility_id: string;
+  name: string;
+  type: string;
+  capacity: string;
+  amenities: string;
+  rate_daily_aed: string;
+  rate_weekly_aed: string;
+  rate_monthly_aed: string;
+  availability_days: string;
+  floor: string;
 }
 
 export type CallStatus = "idle" | "connecting" | "active" | "ended" | "error";
