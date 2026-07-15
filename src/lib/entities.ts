@@ -43,7 +43,7 @@ export const ENTITIES: Record<EntitySlug, EntityConfig> = {
     name: "Dubai Healthcare City",
     shortName: "DHCC",
     tagline: "Your gateway to world-class healthcare in Dubai",
-    agentName: "Sara",
+    agentName: "Daana",
     agentIdEnvKey: "RETELL_AGENT_ID_DHCC",
     receptionistImage: "/images/receptionist.png",
     logoText: "DHCC",

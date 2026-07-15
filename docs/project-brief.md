@@ -10,7 +10,7 @@ A web app with **AI voice receptionists** for two Dubai Healthcare City entities
 
 | Entity | Agent name | Role |
 |--------|------------|------|
-| **DHCC** (Dubai Healthcare City) | Sara | Helps patients and visitors find doctors, discuss demo appointments, get directions, and answer FAQs |
+| **DHCC** (Dubai Healthcare City) | Daana | Helps patients and visitors find doctors, discuss demo appointments, get directions, and answer FAQs |
 | **C37** (medical co-working workspace) | Maya | Helps **patients** book consultations with C37 doctors, and **physicians** learn about membership and book workspace (consulting rooms, exam rooms, private offices) |
 
 Callers speak to the agent through the browser (Retell AI). As the agent talks, it triggers server tools that update a **live side panel** on the same page with cards (doctors, slots, bookings, directions, workspaces, etc.).
@@ -64,7 +64,7 @@ C37 is not a hospital. It provides consulting space for independent physicians; 
 | Route | Content |
 |-------|---------|
 | `/` | Landing — choose DHCC or C37 |
-| `/dhcc` | DHCC receptionist (Sara) + assistance panel |
+| `/dhcc` | DHCC receptionist (Daana) + assistance panel |
 | `/c37` | C37 receptionist (Maya) + assistance panel |
 
 ---

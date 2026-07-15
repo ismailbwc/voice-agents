@@ -37,7 +37,7 @@ Create two **Single Prompt** voice agents:
 
 | Agent                    | Prompt Source               | Knowledge Base | Voice Suggestion                  |
 | ------------------------ | --------------------------- | -------------- | --------------------------------- |
-| DHCC Receptionist (Sara) | `lib/prompts/dhcc-agent.md` | DHCC KB        | Warm professional female, English |
+| DHCC Receptionist (Daana) | `lib/prompts/dhcc-agent.md` | DHCC KB        | Warm professional female, English |
 | C37 Receptionist (Maya)  | `lib/prompts/c37-agent.md`  | C37 KB         | Distinct warm female, English     |
 
 

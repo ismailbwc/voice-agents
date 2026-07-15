@@ -7,7 +7,7 @@ AI voice receptionists for **Dubai Healthcare City** and **C37**, powered by [Re
 | URL | Entity |
 |-----|--------|
 | `/` | Landing page |
-| `/dhcc` | DHCC voice receptionist (Sara) |
+| `/dhcc` | DHCC voice receptionist (Daana) |
 | `/c37` | C37 voice receptionist (Maya) |
 
 ## Quick Start
